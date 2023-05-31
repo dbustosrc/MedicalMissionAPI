@@ -68,6 +68,41 @@ class AppointmentController {
       res.status(500).json({ error: 'Error al obtener las citas' });
     }
   }
+
+  async getAppointmentsByParams(req, res){
+    try {
+      const appointmentParams = req.body;
+      const result = await Appointment.find({ period: appointmentParams.period, person: appointmentParams.person })
+            .sort('medicalSpecialization')
+            .populate({
+                path: 'period',
+                path: 'medicalSpecialization',
+            })
+            .exec();
+            
+        const formattedResult = result.map(appointment => {
+            const {
+              number,
+              attentionDate,
+              status,
+              observation
+            } = appointment;
+            const periodName = person.address.district;
+            const medicalSpecializationName = person.address.city;
+            return {
+              number,
+              attentionDate,
+              status,
+              observation,
+              periodName,
+              medicalSpecializationName
+            };
+          });
+        res.json(formattedResult);
+    } catch (error) {
+      res.status(500).json({ error: 'Error al obtener las citas' });
+    }
+  }
 }
 
 module.exports = AppointmentController;

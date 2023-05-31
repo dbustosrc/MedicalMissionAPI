@@ -20,4 +20,6 @@ router.get('/appointments/:id', md_auth.ensureAuth, appointmentController.getApp
 // Ruta para obtener todas las citas
 router.get('/appointments', md_auth.ensureAuth, appointmentController.getAppointments);
 
+router.get('/appointments/getAppointmentsByParams', md_auth.ensureAuth, appointmentController.getAppointmentsByParams);
+
 module.exports = router;
