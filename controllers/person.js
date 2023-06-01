@@ -25,6 +25,15 @@ async function getPerson(req, res) {
     }
 }
 
+async function getPersons(req, res) {
+    try {
+        const persons = await Person.find();
+        res.status(200).json(persons);
+    } catch (error) {
+        res.status(500).json({ error: 'Error al obtener las personas' });
+    }
+}
+
 async function getPersonIdCards(req, res) {
     try {
         const result = await Person.find()
@@ -39,42 +48,42 @@ async function getPersonIdCards(req, res) {
                 }
             })
             .exec();
-            
+
         const formattedResult = result.map(person => {
             const {
-              //identification,
-              idCardNumber,
-              firstname,
-              secondname,
-              paternallastname,
-              maternalLastname,
-              birthdate
+                //identification,
+                idCardNumber,
+                firstname,
+                secondname,
+                paternallastname,
+                maternalLastname,
+                birthdate
             } = person;
             const districtName = person.address.district;
             const cityName = person.address.city;
             const regionName = person.address.region.name;
             const countryName = person.address.region.country.name;
             return {
-              //identification,
-              idCardNumber,
-              firstname,
-              secondname,
-              paternallastname,
-              maternalLastname,
-              birthdate,
-              districtName,
-              cityName,
-              regionName,
-              countryName
+                //identification,
+                idCardNumber,
+                firstname,
+                secondname,
+                paternallastname,
+                maternalLastname,
+                birthdate,
+                districtName,
+                cityName,
+                regionName,
+                countryName
             };
-          });
+        });
         res.json(formattedResult);
     } catch (error) {
         res.status(500).json({ error: 'Error retrieving idCards', error });
     }
 }
 
-async function getPersons(req, res) {
+async function getPersonsPaginated(req, res) {
     try {
         const page = req.params.page ? req.params.page : 1;
         const itemsPerPage = 4;
@@ -197,6 +206,7 @@ module.exports = {
     getPersonIdCards,
     savePerson,
     getPersons,
+    getPersonsPaginated,
     updatePerson,
     deletePerson,
     uploadImage,
