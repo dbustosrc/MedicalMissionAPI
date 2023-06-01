@@ -9,6 +9,8 @@ const occupationSchema = new Schema({
   },
 });
 
+occupationSchema.index({ name: 1 }, { unique: true });
+
 occupationSchema.pre('save', async function (next) {
   try {
     this.name = await common.capitalLetters(this.name);
