@@ -69,7 +69,7 @@ class MedicalSpecializationController {
     try {
       const medicalSpecializations = await MedicalSpecialization.find();
 
-      res.status(200).json({ medicalSpecializations });
+      res.status(200).json( medicalSpecializations );
     } catch (error) {
       res.status(500).json({ message: 'Error al obtener las especializaciones médicas' });
     }

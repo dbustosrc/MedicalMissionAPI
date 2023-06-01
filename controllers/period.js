@@ -58,7 +58,7 @@ class PeriodController {
   async getPeriods(req, res) {
     try {
       const periods = await Period.find();
-      res.json({ periods });
+      res.json( periods );
     } catch (error) {
       res.status(500).json({ message: 'Error retrieving periods', error });
     }

@@ -91,6 +91,11 @@ exports.capitalLetters = function capitalLetters(str) {
 };
 
 exports.lowerCaseLetters = function lowerCaseLetters(str) {
+    
+    if (!str){
+        return "";
+    }
+    
     const arr = str.split(" ");
 
     for (var i = 0; i < arr.length; i++) {

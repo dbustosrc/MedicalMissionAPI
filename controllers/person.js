@@ -18,7 +18,7 @@ async function getPerson(req, res) {
             return res.status(500).send({ error: 'Persona no existe' });
         }
 
-        return res.status(200).send({ personFound });
+        return res.status(200).send( personFound );
     } catch (err) {
         console.log(err);
         return res.status(500).send({ error: 'Error en la petición' });
