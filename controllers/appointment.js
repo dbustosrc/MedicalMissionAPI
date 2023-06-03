@@ -70,43 +70,43 @@ class AppointmentController {
   }
 
   async getAppointmentsByParams(req, res) {
-  try {
-    const appointmentParams = req.body;
-    const result = await Appointment.find({
-      period: appointmentParams.period,
-      person: appointmentParams.person
-    })
-      .sort('medicalSpecialization')
-      .populate('period')
-      .populate('medicalSpecialization')
-      .exec();
+    try {
+      const { period, person } = req.params;
 
-    const formattedResult = result.map(appointment => {
-      const {
-        number,
-        attentionDate,
-        status,
-        observation,
-        period: { name: periodName },
-        medicalSpecialization: { name: medicalSpecializationName }
-      } = appointment;
+      const result = await Appointment.find({
+        period: period,
+        person: person
+      })
+        .sort('medicalSpecialization')
+        .populate('period')
+        .populate('medicalSpecialization')
+        .exec();
 
-      return {
-        number,
-        attentionDate,
-        status,
-        observation,
-        periodName,
-        medicalSpecializationName
-      };
-    });
+      const formattedResult = result.map(appointment => {
+        const {
+          number,
+          attentionDate,
+          status,
+          observation,
+          period: { name: periodName },
+          medicalSpecialization: { name: medicalSpecializationName }
+        } = appointment;
 
-    res.json(formattedResult);
-  } catch (error) {
-    res.status(500).json({ error: 'Error al obtener las citas' });
+        return {
+          number,
+          attentionDate,
+          status,
+          observation,
+          periodName,
+          medicalSpecializationName
+        };
+      });
+      res.json(formattedResult);
+    } catch (error) {
+      res.status(500).json({ error: 'Error al obtener las citas' });
+    }
   }
-}
-  
+
 
 }
 
