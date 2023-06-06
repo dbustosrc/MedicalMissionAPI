@@ -30,11 +30,21 @@ addressSchema.index({ mainStreet: 1, numbering: 1, reference: 1, city: 1, distri
 
 addressSchema.pre('save', async function (next) {
   try {
-    this.mainStreet = await common.capitalLetters(this.mainStreet);
-    this.intersection = await common.capitalLetters(this.intersection);
-    this.reference = await common.capitalLetters(this.reference);
-    this.numbering = await common.upperCaseLetters(this.numbering);
-    this.postalCode = await common.upperCaseLetters(this.postalCode);
+    const fieldsToCapitalize = ['mainStreet', 'intersection', 'reference'];
+    const fieldsToUpperCase = ['numbering', 'postalCode'];
+
+    for (const field of fieldsToCapitalize) {
+      if (this[field]) {
+        this[field] = common.capitalLetters(this[field]);
+      }
+    }
+
+    for (const field of fieldsToUpperCase) {
+      if (this[field]) {
+        this[field] = common.upperCaseLetters(this[field]);
+      }
+    }
+
     next();
   } catch (error) {
     next(error);
@@ -44,11 +54,20 @@ addressSchema.pre('save', async function (next) {
 addressSchema.pre('findOneAndUpdate', async function (next) {
   try {
     const update = this.getUpdate();
-    update.mainStreet = await common.capitalLetters(update.mainStreet);
-    update.intersection = await common.capitalLetters(update.intersection);
-    update.reference = await common.capitalLetters(update.reference);
-    update.numbering = await common.upperCaseLetters(update.numbering);
-    update.postalCode = await common.upperCaseLetters(this.postalCode);
+    const fieldsToCapitalize = ['mainStreet', 'intersection', 'reference'];
+    const fieldsToUpperCase = ['numbering', 'postalCode'];
+
+    for (const field of fieldsToCapitalize) {
+      if (update[field]) {
+        update[field] = common.capitalLetters(update[field]);
+      }
+    }
+
+    for (const field of fieldsToUpperCase) {
+      if (update[field]) {
+        update[field] = common.upperCaseLetters(update[field]);
+      }
+    }
     next();
   } catch (error) {
     next(error);

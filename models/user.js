@@ -36,9 +36,20 @@ const userSchema = new Schema({
 
 userSchema.pre('save', async function (next) {
     try {
-        this.name = await common.capitalLetters(this.name);
-        this.surname = await common.capitalLetters(this.surname);
-        this.email = await common.lowerCaseLetters(this.email);
+        const fieldsToCapitalize = ['name', 'surname'];
+        const fieldsToLowerCase = ['email'];
+
+        for (const field of fieldsToCapitalize) {
+            if (this[field]) {
+                this[field] = await common.capitalLetters(this[field]);
+            }
+        }
+
+        for (const field of fieldsToLowerCase) {
+            if (this[field]) {
+                this[field] = await common.lowerCaseLetters(this[field]);
+            }
+        }
         next();
     } catch (error) {
         next(error);
@@ -48,10 +59,20 @@ userSchema.pre('save', async function (next) {
 userSchema.pre('findOneAndUpdate', async function (next) {
     try {
         const update = this.getUpdate();
-        update.name = await common.capitalLetters(update.name);
-        update.surname = await common.capitalLetters(update.surname);
-        update.email = await common.lowerCaseLetters(update.email);
-        next();
+        const fieldsToCapitalize = ['name', 'surname'];
+        const fieldsToLowerCase = ['email'];
+
+        for (const field of fieldsToCapitalize) {
+            if (update[field]) {
+                update[field] = await common.capitalLetters(update[field]);
+            }
+        }
+
+        for (const field of fieldsToLowerCase) {
+            if (update[field]) {
+                update[field] = await common.lowerCaseLetters(update[field]);
+            }
+        }
     } catch (error) {
         next(error);
     }

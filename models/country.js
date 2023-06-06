@@ -18,8 +18,9 @@ countrySchema.index({ name: 1 }, { unique: true });
 
 countrySchema.pre('save', async function (next) {
   try {
-    this.name = await common.capitalLetters(this.name);
-
+    if (this.name) {
+      this.name = await common.capitalLetters(this.name);
+    };
     const lastCountry = await mongoose.models['Country'].find().sort({ idNumber: -1 }).limit(1).exec();
     this.idNumber = lastCountry.length ? lastCountry[0].idNumber + 1 : 1;
     next();
@@ -31,7 +32,9 @@ countrySchema.pre('save', async function (next) {
 countrySchema.pre('findOneAndUpdate', async function (next) {
   try {
     const update = this.getUpdate();
-    update.name = await common.capitalLetters(update.name);
+    if (update.name) {
+      update.name = await common.capitalLetters(update.name);
+    }
     next();
   } catch (error) {
     next(error);

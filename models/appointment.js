@@ -84,8 +84,9 @@ appointmentSchema.pre('save', async function (next) {
                 this.notAttendedUpdate = currentDate;
                 break;
         }
-        console.log(this.observation);
-        this.observation = await common.lowerCaseLetters(this.observation);
+        if (this.observation) {
+            this.observation = await common.lowerCaseLetters(this.observation);
+        };
         const lastAppointment = await mongoose.models['Appointment'].find({ period: this.period }).sort({ number: -1 }).limit(1).exec();
         this.number = lastAppointment.length ? lastAppointment[0].number + 1 : 1;
         console.log(this.number);
@@ -112,7 +113,9 @@ appointmentSchema.pre('findOneAndUpdate', async function (next) {
                 update.notAttendedUpdate = currentDate;
                 break;
         }
-        update.observation = await common.lowerCaseLetters(update.observation);
+        if (update.observation) {
+            update.observation = await common.lowerCaseLetters(update.observation);
+        };
         next();
     } catch (error) {
         next(error);

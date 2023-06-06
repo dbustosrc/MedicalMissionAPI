@@ -74,10 +74,14 @@ personSchema.index({ idCardNumber: 1 }, { unique: true });
 
 personSchema.pre('save', async function (next) {
     try {
-        this.firstname = await common.capitalLetters(this.firstname);
-        this.secondname = await common.capitalLetters(this.secondname);
-        this.paternallastname = await common.capitalLetters(this.paternallastname);
-        this.maternalLastname = await common.capitalLetters(this.maternalLastname);
+        const fieldsToCapitalize = ['firstname', 'secondname', 'paternallastname', 'maternalLastname'];
+
+        for (const field of fieldsToCapitalize) {
+            if (this[field]) {
+                this[field] = await common.capitalLetters(this[field]);
+            }
+        }
+
         const result = await common.getNewPersonIdNumber(this.address);
         this.idNumber = result.idNumber;
         this.idCardNumber = result.idCardNumber;
@@ -90,11 +94,13 @@ personSchema.pre('save', async function (next) {
 personSchema.pre('findOneAndUpdate', async function (next) {
     try {
         const update = this.getUpdate();
-        update.firstname = await common.capitalLetters(update.firstname);
-        update.secondname = await common.capitalLetters(update.secondname);
-        update.paternallastname = await common.capitalLetters(update.paternallastname);
-        update.maternalLastname = await common.capitalLetters(update.maternalLastname);
+        const fieldsToCapitalize = ['firstname', 'secondname', 'paternallastname', 'maternalLastname'];
 
+        for (const field of fieldsToCapitalize) {
+            if (update[field]) {
+                update[field] = await common.capitalLetters(update[field]);
+            }
+        }
         next();
     } catch (error) {
         next(error);

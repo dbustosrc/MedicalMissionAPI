@@ -23,7 +23,9 @@ regionSchema.index({ name: 1, country: 1 }, { unique: true });
 
 regionSchema.pre('save', async function (next) {
   try {
-    this.name = await common.capitalLetters(this.name);
+    if (this.name) {
+      this.name = await common.capitalLetters(this.name);
+    };
 
     const lastRegion = await mongoose.models['Region'].find({ country: this.country }).sort({ idNumber: -1 }).limit(1).exec();
     this.idNumber = lastRegion.length ? lastRegion[0].idNumber + 1 : 10;
@@ -36,7 +38,10 @@ regionSchema.pre('save', async function (next) {
 regionSchema.pre('findOneAndUpdate', async function (next) {
   try {
     const update = this.getUpdate();
-    update.name = await common.capitalLetters(update.name);
+    if (update.name) {
+      update.name = await common.capitalLetters(update.name);
+    };
+
     next();
   } catch (error) {
     next(error);

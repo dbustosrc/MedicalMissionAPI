@@ -14,7 +14,9 @@ ethnicGroupSchema.index({ name: 1 }, { unique: true });
 
 ethnicGroupSchema.pre('save', async function (next) {
   try {
-    this.name = await common.capitalLetters(this.name);
+    if (this.name) {
+      this.name = await common.capitalLetters(this.name);
+    };
     next();
   } catch (error) {
     next(error);
@@ -24,7 +26,9 @@ ethnicGroupSchema.pre('save', async function (next) {
 ethnicGroupSchema.pre('findOneAndUpdate', async function (next) {
   try {
     const update = this.getUpdate();
-    update.name = await common.capitalLetters(update.name);
+    if (update.name) {
+      update.name = await common.capitalLetters(update.name);
+    };
     next();
   } catch (error) {
     next(error);
