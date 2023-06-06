@@ -20,4 +20,7 @@ router.get('/users-allocations/:id', md_auth.ensureAuth, controller.getUsersAllo
 // Ruta para obtener todas las asignaciones de usuarios
 router.get('/users-allocations', md_auth.ensureAuth, controller.getUsersAllocations);
 
+// Ruta para obtener las asignaciones de usuarios según período
+router.get('/users-allocations/period/:period/user/:user', md_auth.ensureAuth, controller.getPeriodUsersAllocations);
+
 module.exports = router;

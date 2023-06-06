@@ -69,7 +69,46 @@ class AppointmentController {
     }
   }
 
-  async getAppointmentsByParams(req, res) {
+  async getPeriodAppointmentsByMedicalSpecialty(req, res) {
+    try {
+      const { period, specialty, date } = req.params;
+      console.log(period, specialty, date);
+
+      const result = await Appointment.find({
+        period: period,
+        medicalSpecialization: specialty,
+        attentionDate: date
+      })
+        .sort('number')
+        .populate('person')
+        .exec();
+
+      const formattedResult = result.map(appointment => {
+        const {
+          _id,
+          number,
+          person: { firstname, secondname, paternallastname, maternalLastname },
+          attentionDate,
+          status,
+          observation
+        } = appointment;
+        const personName = `${firstname} ${secondname} ${paternallastname} ${maternalLastname}`;
+        return {
+          _id,
+          number,
+          personName,
+          attentionDate,
+          status,
+          observation
+        };
+      });
+      res.json(formattedResult);
+    } catch (error) {
+      res.status(500).json({ error: 'Error al obtener las citas' });
+    }
+  }
+
+  async getPeriodAppointmentsByPerson(req, res) {
     try {
       const { period, person } = req.params;
 

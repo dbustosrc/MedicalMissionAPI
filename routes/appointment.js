@@ -21,6 +21,9 @@ router.get('/appointments/:id', md_auth.ensureAuth, appointmentController.getApp
 router.get('/appointments', md_auth.ensureAuth, appointmentController.getAppointments);
 
 // Ruta para obtener citas por parámetros
-router.get('/appointments/period/:period/person/:person', md_auth.ensureAuth, appointmentController.getAppointmentsByParams);
+router.get('/appointments/period/:period/person/:person', md_auth.ensureAuth, appointmentController.getPeriodAppointmentsByPerson);
+
+// Ruta para obtener citas por parámetros
+router.get('/appointments/period/:period/medical-specialty/:specialty/attention-date/:date', md_auth.ensureAuth, appointmentController.getPeriodAppointmentsByMedicalSpecialty);
 
 module.exports = router;

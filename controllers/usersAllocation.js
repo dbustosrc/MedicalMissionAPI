@@ -4,13 +4,15 @@ class UsersAllocationController {
   // Método para crear una nueva asignación de usuarios
   async createUsersAllocation(req, res) {
     try {
-      const { period, medicalSpecialization, user } = req.body;
+      const { period, medicalSpecialization, user, pharmacist, triage } = req.body;
 
       // Crear una nueva instancia de UsersAllocation con los datos recibidos
       const usersAllocation = new UsersAllocation({
         period,
         medicalSpecialization,
         user,
+        pharmacist,
+        triage
       });
 
       // Guardar la asignación de usuarios en la base de datos
@@ -26,12 +28,12 @@ class UsersAllocationController {
   async updateUsersAllocation(req, res) {
     try {
       const { id } = req.params;
-      const { period, medicalSpecialization, user } = req.body;
+      const { period, medicalSpecialization, user, pharmacist, triage } = req.body;
 
       // Buscar la asignación de usuarios por su ID y actualizar sus datos
       const updatedAllocation = await UsersAllocation.findByIdAndUpdate(
         id,
-        { period, medicalSpecialization, user },
+        { period, medicalSpecialization, user, pharmacist, triage },
         { new: true }
       );
 
@@ -90,6 +92,49 @@ class UsersAllocationController {
       res.json(allocations);
     } catch (error) {
       res.status(500).json({ error: 'Error al obtener las asignaciones de usuarios' });
+    }
+  }
+
+  async getPeriodUsersAllocations(req, res) {
+    try {
+      const { period, user } = req.params;
+
+      // Obtener todas las asignaciones de usuarios
+      const result = await UsersAllocation.find({ period: period, user: user }).populate('medicalSpecialization').exec();
+
+      const formattedResult = result.map(allocation => {
+        const {
+          _id,
+          period,
+          medicalSpecialization,
+          pharmacist,
+          triage
+        } = allocation;
+        let medicalSpecializationId = null;
+        let medicalSpecializationName = '';
+        if (medicalSpecialization) {
+          medicalSpecializationId = medicalSpecialization._id;
+          medicalSpecializationName = medicalSpecialization.name;
+        } else {
+          if (triage === true) {
+            medicalSpecializationName = 'Triage';
+          } else if (pharmacist === true) {
+            medicalSpecializationName = 'Pharmacy';
+          }
+        }
+        return {
+          _id,
+          period,
+          medicalSpecializationId,
+          medicalSpecializationName,
+          pharmacist,
+          triage
+        };
+      });
+
+      res.json(formattedResult);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
     }
   }
 }

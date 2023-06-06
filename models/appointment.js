@@ -28,10 +28,12 @@ const appointmentSchema = new Schema({
     },
     status: {                           //Estado de la cita
         type: String,
-        enum: ['STATUS_ON-HOLD',        //En cola
-            'STATUS_ARCHIVED',          //Archivado
-            'STATUS_ATTENDED',          //Atendido
-            'STATUS_NOT-ATTENDED',      //Sin atenderse
+        enum: ['STATUS_ON-HOLD',            //En cola
+            'STATUS_ON-HOLD_ARCHIVED',      //Archivado
+            'STATUS_PRESCRIBED',            //Recetado
+            'STATUS_PRESCRIBED_ARCHIVED',   //Archivado
+            'STATUS_ATTENDED',              //Atendido
+            'STATUS_NOT-ATTENDED',          //Sin atenderse
         ],
         default: 'STATUS_ON-HOLD'
     },
@@ -41,7 +43,13 @@ const appointmentSchema = new Schema({
     onHoldUpdate: {
         type: Date
     },
-    archivedUpdate: {
+    onHoldArchivedUpdate: {
+        type: Date
+    },
+    prescribedUpdate: {
+        type: Date
+    },
+    prescribedArchivedUpdate: {
         type: Date
     },
     attendedUpdate: {
@@ -60,8 +68,14 @@ appointmentSchema.pre('save', async function (next) {
             case 'STATUS_ON-HOLD':
                 this.onHoldUpdate = currentDate;
                 break;
-            case 'STATUS_ARCHIVED':
-                this.archivedUpdate = currentDate;
+            case 'STATUS_ON-HOLD_ARCHIVED':
+                this.onHoldArchivedUpdate = currentDate;
+                break;
+            case 'STATUS_PRESCRIBED':
+                this.prescribedUpdate = currentDate;
+                break;
+            case 'STATUS_PRESCRIBED_ARCHIVED':
+                this.prescribedArchivedUpdate = currentDate;
                 break;
             case 'STATUS_ATTENDED':
                 this.attendedUpdate = currentDate;
