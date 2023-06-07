@@ -22,6 +22,9 @@ const appointmentSchema = new Schema({
     number: {
         type: Number
     },
+    confirmationNumber: {
+        type: Number
+    },
     attentionDate: {
         type: Date,
         required: true
@@ -29,10 +32,11 @@ const appointmentSchema = new Schema({
     status: {                           //Estado de la cita
         type: String,
         enum: ['STATUS_ON-HOLD',            //En cola
-            'STATUS_ON-HOLD_ARCHIVED',      //Archivado
-            'STATUS_PRESCRIBED',            //Recetado
-            'STATUS_PRESCRIBED_ARCHIVED',   //Archivado
-            'STATUS_ATTENDED',              //Atendido
+            'STATUS_CONFIRMED',             //Confirmada
+            'STATUS_CONFIRMED_ARCHIVED',    //Archivada
+            'STATUS_PRESCRIBED',            //Recetada
+            'STATUS_PRESCRIBED_ARCHIVED',   //Archivada
+            'STATUS_ATTENDED',              //Atendida
             'STATUS_NOT-ATTENDED',          //Sin atenderse
         ],
         default: 'STATUS_ON-HOLD'
@@ -43,7 +47,10 @@ const appointmentSchema = new Schema({
     onHoldUpdate: {
         type: Date
     },
-    onHoldArchivedUpdate: {
+    confirmedUpdate: {
+        type: Date
+    },
+    confirmedArchivedUpdate: {
         type: Date
     },
     prescribedUpdate: {
@@ -68,8 +75,11 @@ appointmentSchema.pre('save', async function (next) {
             case 'STATUS_ON-HOLD':
                 this.onHoldUpdate = currentDate;
                 break;
-            case 'STATUS_ON-HOLD_ARCHIVED':
-                this.onHoldArchivedUpdate = currentDate;
+            case 'STATUS_CONFIRMED':
+                this.confirmedUpdate = currentDate;
+                break;
+            case 'STATUS_CONFIRMED_ARCHIVED':
+                this.confirmedArchivedUpdate = currentDate;
                 break;
             case 'STATUS_PRESCRIBED':
                 this.prescribedUpdate = currentDate;
@@ -103,8 +113,22 @@ appointmentSchema.pre('findOneAndUpdate', async function (next) {
             case 'STATUS_ON-HOLD':
                 update.onHoldUpdate = currentDate;
                 break;
-            case 'STATUS_ARCHIVED':
-                update.archivedUpdate = currentDate;
+            case 'STATUS_CONFIRMED':
+                update.confirmedUpdate = currentDate;
+                const currentAppointment = await mongoose.models['Appointment'].findById(update._id);
+                if (!currentAppointment.confirmationNumber){
+                    const lastAppointment = await mongoose.models['Appointment'].find({ period: currentAppointment.period, confirmationNumber: { $ne: null } }).sort({ confirmationNumber: -1 }).limit(1).exec();
+                    update.confirmationNumber = lastAppointment.length ? lastAppointment[0].confirmationNumber + 1 : 1;
+                }
+                break;
+            case 'STATUS_CONFIRMED_ARCHIVED':
+                update.confirmedArchivedUpdate = currentDate;
+                break;
+            case 'STATUS_PRESCRIBED':
+                update.prescribedUpdate = currentDate;
+                break;
+            case 'STATUS_PRESCRIBED_ARCHIVED':
+                update.prescribedArchivedUpdate = currentDate;
                 break;
             case 'STATUS_ATTENDED':
                 update.attendedUpdate = currentDate;
@@ -116,6 +140,7 @@ appointmentSchema.pre('findOneAndUpdate', async function (next) {
         if (update.observation) {
             update.observation = await common.lowerCaseLetters(update.observation);
         };
+        
         next();
     } catch (error) {
         next(error);

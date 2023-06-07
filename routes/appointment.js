@@ -28,4 +28,6 @@ router.get('/appointments/period/:period/medical-specialty/:specialty/attention-
 
 router.get('/appointments/period/:period/attention-date/:date', md_auth.ensureAuth, appointmentController.getPeriodAppointmentsByDate);
 
+router.get('/appointments/unfiltered/period/:period/attention-date/:date', md_auth.ensureAuth, appointmentController.getPeriodAppointmentsByDateUnfiltered);
+
 module.exports = router;

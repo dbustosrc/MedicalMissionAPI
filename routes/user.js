@@ -12,5 +12,10 @@ api.post('/loginUser', userController.loginUser);
 api.put('/updateUser/:id', md_auth.ensureAuth, userController.updateUser);
 api.post('/upload-image-user/:id', [md_auth.ensureAuth, md_updload], userController.uploadImage);
 api.get('/get-image-user/:imageFile', userController.getImageFile);
+api.get('/users/:id', md_auth.ensureAuth, userController.getUser);
+api.get('/users', md_auth.ensureAuth, userController.getUsers);
+
+// Ruta para actualizar la contraseña
+api.put('/users/password', md_auth.ensureAuth , userController.updatePassword);
 
 module.exports = api;

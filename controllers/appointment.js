@@ -18,7 +18,7 @@ class AppointmentController {
     try {
       const appointmentId = req.params.id;
       const updateData = req.body;
-      console.log(updateData);
+      updateData._id = req.params.id;
       const updatedAppointment = await Appointment.findByIdAndUpdate(appointmentId, updateData, { new: true });
       if (updatedAppointment) {
         res.status(200).json(updatedAppointment);
@@ -78,9 +78,10 @@ class AppointmentController {
       const result = await Appointment.find({
         period: period,
         medicalSpecialization: specialty,
-        attentionDate: date
+        attentionDate: date,
+        status: { $ne: 'STATUS_ON-HOLD' }
       })
-        .sort('number')
+        .sort('confirmationNumber')
         .populate('person')
         .exec();
 
@@ -90,19 +91,23 @@ class AppointmentController {
         const {
           _id,
           number,
+          confirmationNumber,
           person: { firstname, secondname, paternallastname, maternalLastname },
+          person: { idCardNumber },
           attentionDate,
           status,
           observation
         } = appointment;
         const personName = `${firstname} ${secondname} ${paternallastname} ${maternalLastname}`;
-        if (status === 'STATUS_ON-HOLD'){
+        if (status === 'STATUS_CONFIRMED') {
           position = counter++;
         }
         return {
           _id,
-          position: position === 0? null: position,
+          position: position === 0 ? null : position,
           number,
+          confirmationNumber,
+          idCardNumber,
           personName,
           attentionDate,
           status,
@@ -121,27 +126,36 @@ class AppointmentController {
 
       const result = await Appointment.find({
         period: period,
-        attentionDate: date
+        attentionDate: date,
+        status: { $ne: 'STATUS_ON-HOLD' }
       })
-        .sort('number')
+        .sort('confirmationNumber')
         .populate('person')
         .populate('medicalSpecialization')
         .exec();
 
+      let counter = 1;
+      let position = 0;
       const formattedResult = result.map(appointment => {
         const {
           _id,
           number,
           person: { firstname, secondname, paternallastname, maternalLastname },
+          person: { idCardNumber },
           attentionDate,
           medicalSpecialization: { name: medicalSpecializationName },
           status,
           observation
         } = appointment;
         const personName = `${firstname} ${secondname} ${paternallastname} ${maternalLastname}`;
+        if (status === 'STATUS_PRESCRIBED') {
+          position = counter++;
+        }
         return {
           _id,
+          position: position === 0 ? null : position,
           number,
+          idCardNumber,
           personName,
           attentionDate,
           medicalSpecializationName,
@@ -163,13 +177,14 @@ class AppointmentController {
         period: period,
         person: person
       })
-        .sort('medicalSpecialization')
+        .sort('attentionDate')
         .populate('period')
         .populate('medicalSpecialization')
         .exec();
 
       const formattedResult = result.map(appointment => {
         const {
+          _id,
           number,
           attentionDate,
           status,
@@ -179,12 +194,58 @@ class AppointmentController {
         } = appointment;
 
         return {
+          _id,
           number,
           attentionDate,
           status,
           observation,
           periodName,
           medicalSpecializationName
+        };
+      });
+      res.json(formattedResult);
+    } catch (error) {
+      res.status(500).json({ error: 'Error al obtener las citas' });
+    }
+  }
+
+  async getPeriodAppointmentsByDateUnfiltered(req, res) {
+    try {
+      const { period, date } = req.params;
+
+      const result = await Appointment.find({
+        period: period,
+        attentionDate: date
+      })
+        .sort('number')
+        .populate('person')
+        .populate('medicalSpecialization')
+        .exec();
+
+      const formattedResult = result.map(appointment => {
+        const {
+          _id,
+          number,
+          person: {
+            firstname,
+            secondname,
+            paternallastname,
+            maternalLastname,
+            idCardNumber,
+            _id: personId
+          },
+          medicalSpecialization: { name: medicalSpecializationName },
+          status
+        } = appointment;
+        const personName = `${firstname} ${secondname} ${paternallastname} ${maternalLastname}`;
+        return {
+          _id,
+          number,
+          personId,
+          idCardNumber,
+          personName,
+          medicalSpecializationName,
+          status
         };
       });
       res.json(formattedResult);
