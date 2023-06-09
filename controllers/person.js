@@ -51,7 +51,7 @@ async function getPersonIdCards(req, res) {
 
         const formattedResult = result.map(person => {
             const {
-                //identification,
+                identification,
                 idCardNumber,
                 firstname,
                 secondname,
@@ -64,7 +64,7 @@ async function getPersonIdCards(req, res) {
             const regionName = person.address.region.name;
             const countryName = person.address.region.country.name;
             return {
-                //identification,
+                identification,
                 idCardNumber,
                 firstname,
                 secondname,

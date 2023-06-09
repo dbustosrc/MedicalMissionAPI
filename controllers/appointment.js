@@ -73,7 +73,6 @@ class AppointmentController {
   async getPeriodAppointmentsByMedicalSpecialty(req, res) {
     try {
       const { period, specialty, date } = req.params;
-      console.log(period, specialty, date);
 
       const result = await Appointment.find({
         period: period,
@@ -87,23 +86,38 @@ class AppointmentController {
 
       let counter = 1;
       let position = 0;
-      const formattedResult = result.map(appointment => {
+      const formattedResult = await Promise.all(result.map(async appointment => {
         const {
           _id,
           number,
           confirmationNumber,
           person: { firstname, secondname, paternallastname, maternalLastname },
-          person: { idCardNumber },
+          person: { idCardNumber, _id: personId, identification },
           attentionDate,
           status,
           observation
         } = appointment;
         const personName = `${firstname} ${secondname} ${paternallastname} ${maternalLastname}`;
+        let otherAppointments = [];
+        if (status === 'STATUS_CONFIRMED') {
+          otherAppointments = await Appointment.find({
+            period: period,
+            person: personId,
+            attentionDate: date,
+            status: { $in: ['STATUS_CONFIRMED', 'STATUS_CONFIRMED_ARCHIVED'] },
+            _id: { $ne: _id }
+          }).sort('confirmationNumber')
+            .populate('medicalSpecialization')
+            .lean()
+            .exec();
+        }
+
         if (status === 'STATUS_CONFIRMED') {
           position = counter++;
         }
         return {
           _id,
+          identification,
           position: position === 0 ? null : position,
           number,
           confirmationNumber,
@@ -111,12 +125,22 @@ class AppointmentController {
           personName,
           attentionDate,
           status,
-          observation
+          observation,
+          otherAppointments: otherAppointments.map(({ 
+            _id,
+            medicalSpecialization: { name: medicalSpecializationName },
+            attentionDate,
+            status }) => ({
+              _id,
+              medicalSpecializationName,
+              attentionDate,
+              status
+            }))
         };
-      });
+      }));
       res.json(formattedResult);
     } catch (error) {
-      res.status(500).json({ error: 'Error al obtener las citas' });
+      res.status(500).json({ error: error.message });
     }
   }
 
@@ -141,7 +165,7 @@ class AppointmentController {
           _id,
           number,
           person: { firstname, secondname, paternallastname, maternalLastname },
-          person: { idCardNumber },
+          person: { idCardNumber, identification },
           attentionDate,
           medicalSpecialization: { name: medicalSpecializationName },
           status,
@@ -156,6 +180,7 @@ class AppointmentController {
           position: position === 0 ? null : position,
           number,
           idCardNumber,
+          identification,
           personName,
           attentionDate,
           medicalSpecializationName,
