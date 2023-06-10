@@ -80,12 +80,10 @@ class AppointmentController {
         attentionDate: date,
         status: { $ne: 'STATUS_ON-HOLD' }
       })
-        .sort('confirmationNumber')
+        .sort({ confirmationNumber: 1 })
         .populate('person')
         .exec();
 
-      let counter = 1;
-      let position = 0;
       const formattedResult = await Promise.all(result.map(async appointment => {
         const {
           _id,
@@ -112,13 +110,9 @@ class AppointmentController {
             .exec();
         }
 
-        if (status === 'STATUS_CONFIRMED') {
-          position = counter++;
-        }
         return {
           _id,
           identification,
-          position: position === 0 ? null : position,
           number,
           confirmationNumber,
           idCardNumber,
@@ -126,7 +120,7 @@ class AppointmentController {
           attentionDate,
           status,
           observation,
-          otherAppointments: otherAppointments.map(({ 
+          otherAppointments: otherAppointments.map(({
             _id,
             medicalSpecialization: { name: medicalSpecializationName },
             attentionDate,
@@ -138,6 +132,16 @@ class AppointmentController {
             }))
         };
       }));
+
+      let counter = 1;
+      formattedResult.forEach(appointment => {
+        if (appointment.status === 'STATUS_CONFIRMED') {
+          appointment.position = counter++;
+        } else {
+          appointment.position = null;
+        }
+      });
+
       res.json(formattedResult);
     } catch (error) {
       res.status(500).json({ error: error.message });
