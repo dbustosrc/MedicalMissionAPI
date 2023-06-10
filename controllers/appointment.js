@@ -102,7 +102,7 @@ class AppointmentController {
             period: period,
             person: personId,
             attentionDate: date,
-            status: { $in: ['STATUS_CONFIRMED', 'STATUS_CONFIRMED_ARCHIVED'] },
+            status: { $nin: ['STATUS_ON-HOLD'] },
             _id: { $ne: _id }
           }).sort('confirmationNumber')
             .populate('medicalSpecialization')
