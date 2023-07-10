@@ -4,6 +4,7 @@ const multer = require('multer');
 const express = require('express');
 const routes = require('./routes/routes');
 const errorHandler = require('errorhandler');
+const cors = require('cors');
 
 module.exports = app => {
     
@@ -19,6 +20,7 @@ module.exports = app => {
     })
 
     // Middlewares
+    app.use(cors());
     app.use(morgan('dev'));
     app.use(multer({
         dest: path.join(__dirname, '../public/uploads/temp')

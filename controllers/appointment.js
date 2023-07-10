@@ -96,9 +96,9 @@ class AppointmentController {
           observation
         } = appointment;
         const personName = `${firstname} ${secondname} ${paternallastname} ${maternalLastname}`;
-        let otherAppointments = [];
+        let relatedAppointments = [];
         if (status === 'STATUS_CONFIRMED') {
-          otherAppointments = await Appointment.find({
+          relatedAppointments = await Appointment.find({
             period: period,
             person: personId,
             attentionDate: date,
@@ -120,13 +120,15 @@ class AppointmentController {
           attentionDate,
           status,
           observation,
-          otherAppointments: otherAppointments.map(({
+          relatedAppointments: relatedAppointments.map(({
             _id,
             medicalSpecialization: { name: medicalSpecializationName },
             attentionDate,
+            observation,
             status }) => ({
               _id,
               medicalSpecializationName,
+              observation,
               attentionDate,
               status
             }))

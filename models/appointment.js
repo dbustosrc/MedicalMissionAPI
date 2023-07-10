@@ -31,9 +31,13 @@ const appointmentSchema = new Schema({
     },
     status: {                           //Estado de la cita
         type: String,
-        enum: ['STATUS_ON-HOLD',            //En cola
+        enum: ['STATUS_ON-HOLD',            //En espera
+            'STATUS_PRESENT',               //Presente
             'STATUS_CONFIRMED',             //Confirmada
+            'STATUS_CONFIRMED_REFERAL',     //Referido
             'STATUS_CONFIRMED_ARCHIVED',    //Archivada
+            'STATUS_BEING-ATTENDED',        //Siendo atendido
+            'STATUS_AWAITING-RESULTS',      //En espera de resultados
             'STATUS_PRESCRIBED',            //Recetada
             'STATUS_PRESCRIBED_ARCHIVED',   //Archivada
             'STATUS_ATTENDED',              //Atendida
