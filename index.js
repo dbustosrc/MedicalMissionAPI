@@ -8,11 +8,8 @@ const http = require('http');
 
 const app = config(express());
 const server = http.createServer(app);
-const io = SocketServer(server, {
-    // cors: {
-    //   origin: "http://localhost:3000",
-    // },
-});
+
+const io = new SocketServer.Server(server);
 
 // Conectar a la base de datos de MongoDB
 require('./database');

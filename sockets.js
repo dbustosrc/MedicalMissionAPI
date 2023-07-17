@@ -1,6 +1,6 @@
 const Appointment = require('./routes/appointment');
 
-export default (io) => {
+module.exports = (io) => {
     io.on("connection", (socket) => {
         // console.log(socket.handshake.url);
         console.log("nuevo socket connectado:", socket.id);
